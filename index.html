@@ -41,7 +41,8 @@
       });
       li.prepend(checkbox);
       var removeButton = document.createElement("button");
-      removeButton.textContent = "删除";
+      removeButton.innerHTML = "&times;"; // 使用红色叉叉
+      removeButton.classList.add("remove-button");
       removeButton.onclick = function() {
         removeTask(index);
       };

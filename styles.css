@@ -47,3 +47,35 @@ body {
   li:last-child {
     border-bottom: none;
   }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .container #taskList {
+    width: 100%;
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .container #taskList li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .container #taskList li:last-child {
+    border-bottom: none;
+  }
+  
+  .remove-button {
+    background-color: transparent;
+    border: none;
+    color: red;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
