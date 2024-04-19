@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToDo应用</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>ToDo应用</h1>
+    <input type="text" id="taskInput" placeholder="添加新任务...">
+    <button onclick="addTask()">添加任务</button>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      loadTasks();
+    });
+
+    function loadTasks() {
+      var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      var taskList = document.getElementById("taskList");
+
+      taskList.innerHTML = "";
+      tasks.forEach(function(task, index) {
+        var li = document.createElement("li");
+        li.textContent = task;
+        li.innerHTML += '<button onclick="removeTask(' + index + ')">删除</button>';
+        taskList.appendChild(li);
+      });
+    }
+
+    function addTask() {
+      var input = document.getElementById("taskInput");
+      var task = input.value.trim();
+
+      if (task !== "") {
+        var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        tasks.push(task);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        input.value = "";
+        loadTasks();
+      }
+    }
+
+    function removeTask(index) {
+      var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks.splice(index, 1);
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      loadTasks();
+    }
+  </script>
+</body>
+</html>
