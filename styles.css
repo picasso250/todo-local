@@ -30,10 +30,6 @@ body {
     cursor: pointer;
   }
   
-  button:hover {
-    background-color: #0056b3;
-  }
-  
   ul {
     list-style-type: none;
     padding: 0;
@@ -77,5 +73,10 @@ body {
     color: red;
     font-size: 20px;
     cursor: pointer;
+    transition: transform 0.5s ease; /* 添加过渡效果 */
+  }
+  
+  .remove-button:hover {
+    transform: rotate(270deg); /* 悬停时旋转360度 */
   }
   
