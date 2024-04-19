@@ -24,10 +24,22 @@
       var taskList = document.getElementById("taskList");
 
       taskList.innerHTML = "";
-      tasks.forEach(function(task, index) {
+      tasks.forEach(function(taskObj, index) {
         var li = document.createElement("li");
-        li.textContent = task;
-        li.innerHTML += '<button onclick="removeTask(' + index + ')">删除</button>';
+        li.textContent = taskObj.task;
+        var checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = taskObj.completed;
+        checkbox.addEventListener("change", function() {
+          updateTaskStatus(index, this.checked);
+        });
+        li.prepend(checkbox);
+        var removeButton = document.createElement("button");
+        removeButton.textContent = "删除";
+        removeButton.onclick = function() {
+          removeTask(index);
+        };
+        li.appendChild(removeButton);
         taskList.appendChild(li);
       });
     }
@@ -38,7 +50,7 @@
 
       if (task !== "") {
         var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-        tasks.push(task);
+        tasks.push({ task: task, completed: false });
         localStorage.setItem("tasks", JSON.stringify(tasks));
         input.value = "";
         loadTasks();
@@ -50,6 +62,12 @@
       tasks.splice(index, 1);
       localStorage.setItem("tasks", JSON.stringify(tasks));
       loadTasks();
+    }
+
+    function updateTaskStatus(index, completed) {
+      var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks[index].completed = completed;
+      localStorage.setItem("tasks", JSON.stringify(tasks));
     }
   </script>
 </body>
