@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   loadTasks();
   setupInputListener();
 });
@@ -8,7 +8,7 @@ function loadTasks() {
   var taskList = document.getElementById("taskList");
 
   taskList.innerHTML = "";
-  tasks.forEach(function(taskObj, index) {
+  tasks.forEach(function (taskObj, index) {
     var li = createTaskElement(taskObj.task, taskObj.completed, index);
     taskList.appendChild(li);
   });
@@ -17,27 +17,27 @@ function loadTasks() {
 function createTaskElement(task, completed, index) {
   var li = document.createElement("li");
   li.dataset.index = index;
-  
+
   var checkbox = document.createElement("input");
   checkbox.type = "checkbox";
   checkbox.checked = completed;
-  checkbox.addEventListener("change", function() {
+  checkbox.addEventListener("change", function () {
     updateTaskStatus(index, this.checked);
   });
   li.appendChild(checkbox);
-  
+
   var taskText = document.createElement("span");
   taskText.textContent = task;
   taskText.classList.add("task-text");
-  taskText.addEventListener("click", function() {
+  taskText.addEventListener("click", function () {
     editTask(this);
   });
   li.appendChild(taskText);
-  
+
   var removeButton = document.createElement("button");
   removeButton.innerHTML = "&times;"; // Red cross symbol
   removeButton.classList.add("remove-button");
-  removeButton.onclick = function() {
+  removeButton.onclick = function () {
     removeTask(index);
   };
   li.appendChild(removeButton);
@@ -47,7 +47,7 @@ function createTaskElement(task, completed, index) {
 
 function setupInputListener() {
   var input = document.getElementById("taskInput");
-  input.addEventListener("keypress", function(event) {
+  input.addEventListener("keypress", function (event) {
     if (event.key === "Enter") {
       addTask();
     }
@@ -87,18 +87,32 @@ function editTask(taskElement) {
   taskInput.type = "text";
   taskInput.value = tasks[index].task;
   taskInput.classList.add("task-input");
-  taskInput.addEventListener("keypress", function(event) {
+
+  var escapePressed = false; // Flag to track if Escape key is pressed
+
+  taskInput.addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
       tasks[index].task = taskInput.value.trim();
       localStorage.setItem("tasks", JSON.stringify(tasks));
       loadTasks();
+    } else if (event.key === "Escape") {
+      // If Escape key is pressed, cancel editing
+      taskElement.textContent = tasks[index].task;
+      escapePressed = true;
     }
   });
-  taskInput.addEventListener("blur", function() {
-    tasks[index].task = taskInput.value.trim();
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    loadTasks();
+
+  taskInput.addEventListener("blur", function () {
+    // Blur event should not trigger if Escape key was pressed
+    setTimeout(function () {
+      if (!escapePressed) {
+        tasks[index].task = taskInput.value.trim();
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        loadTasks();
+      }
+    }, 0);
   });
+
   taskElement.textContent = "";
   taskElement.appendChild(taskInput);
   taskInput.focus();
