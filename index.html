@@ -47,6 +47,9 @@
         removeTask(index);
       };
       li.appendChild(removeButton);
+      li.addEventListener("click", function() {
+        selectTask(this);
+      }); // Add event listener for clicking on task
       return li;
     }
 
@@ -83,6 +86,11 @@
       var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
       tasks[index].completed = completed;
       localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function selectTask(taskElement) {
+      // Toggle selected class for the task element
+      taskElement.classList.toggle("selected");
     }
   </script>
 </body>

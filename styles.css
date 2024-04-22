@@ -1,82 +1,91 @@
 body {
-    font-family: Arial, sans-serif;
-  }
-  
-  .container {
-    max-width: 400px;
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  h1 {
-    text-align: center;
-  }
-  
-  input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-  }
-  
-  button {
-    padding: 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  li {
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  li:last-child {
-    border-bottom: none;
-  }
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .container #taskList {
-    width: 100%;
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .container #taskList li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .container #taskList li:last-child {
-    border-bottom: none;
-  }
-  
-  .remove-button {
-    background-color: transparent;
-    border: none;
-    color: red;
-    font-size: 20px;
-    cursor: pointer;
-    transition: transform 0.5s ease; /* 添加过渡效果 */
-  }
-  
-  .remove-button:hover {
-    transform: rotate(270deg); /* 悬停时旋转360度 */
-  }
-  
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+h1 {
+  text-align: center;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container #taskList {
+  width: 100%;
+  list-style-type: none;
+  padding: 0;
+}
+
+.container #taskList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.container #taskList li:last-child {
+  border-bottom: none;
+}
+
+.remove-button {
+  background-color: transparent;
+  border: none;
+  color: red;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.5s ease;
+  /* 添加过渡效果 */
+}
+
+.remove-button:hover {
+  transform: rotate(270deg);
+  /* 悬停时旋转360度 */
+}
+
+li.selected {
+  background-color: #eaf2fd;
+  /* Change background color when selected */
+  border-radius: 5px;
+  /* Add rounded corners for selected effect */
+}
