@@ -94,6 +94,11 @@ function editTask(taskElement) {
       loadTasks();
     }
   });
+  taskInput.addEventListener("blur", function() {
+    tasks[index].task = taskInput.value.trim();
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    loadTasks();
+  });
   taskElement.textContent = "";
   taskElement.appendChild(taskInput);
   taskInput.focus();
