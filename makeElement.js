@@ -17,15 +17,15 @@
  */
 function makeElement(config) {
     const { tag, classes, attributes, events, styles, children, text, html, data } = config;
-    
+
     // 创建元素
     const element = document.createElement(tag);
-    
+
     // 添加类名
     if (classes && Array.isArray(classes)) {
         element.classList.add(...classes);
     }
-    
+
     // 添加属性
     if (attributes && typeof attributes === 'object') {
         for (const key in attributes) {
@@ -34,7 +34,7 @@ function makeElement(config) {
             }
         }
     }
-    
+
     // 添加样式
     if (styles && typeof styles === 'object') {
         for (const key in styles) {
@@ -43,7 +43,7 @@ function makeElement(config) {
             }
         }
     }
-    
+
     // 添加文本内容或 inner HTML
     if (text && typeof text === 'string') {
         element.textContent = text;
@@ -51,7 +51,7 @@ function makeElement(config) {
     if (html && typeof html === 'string') {
         element.innerHTML = html;
     }
-    
+
     // 添加子元素
     if (children && Array.isArray(children)) {
         children.forEach(child => {
@@ -65,16 +65,51 @@ function makeElement(config) {
             }
         });
     }
-    
+
     // 添加事件
     if (events && typeof events === 'object') {
         for (const key in events) {
             if (events.hasOwnProperty(key)) {
-                element.addEventListener(key, events[key]);
+                if (key === 'keys') {
+                    // 添加键盘事件监听
+                    const keys = events[key];
+                    for (let keyName in keys) {
+                        if (keys.hasOwnProperty(keyName)) {
+                            let f = keys[keyName];
+                            if (Array.isArray(f)) {
+                                // 如果desc是function，就用数组包起来
+                                let descs = f.map(desc => typeof desc === 'function' ? [desc] : desc);
+                                descs.sort((a, b) => b.length - a.length);
+                                element.addEventListener("keydown", function (e) {
+                                    if (e.key === keyName) {
+                                        for (let desc of descs) {
+                                            let cks=[...desc];
+                                            f = cks.pop();
+                                            // now cks is control keys
+                                            if (cks.every(name => e[name + "Key"])) {
+                                                f(e);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {
+                                element.addEventListener("keydown", function (e) {
+                                    if (e.key === keyName) {
+                                        f(e);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                } else {
+                    // 添加其他事件监听
+                    element.addEventListener(key, events[key]);
+                }
             }
         }
     }
-    
+
     // 添加数据
     if (data && typeof data === 'object') {
         for (const key in data) {
@@ -83,6 +118,6 @@ function makeElement(config) {
             }
         }
     }
-    
+
     return element;
 }

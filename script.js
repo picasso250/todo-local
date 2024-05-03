@@ -1,26 +1,30 @@
+
 document.addEventListener("DOMContentLoaded", function () {
   loadTasks();
   setupInputListener();
 });
 
 function loadTasks() {
-  var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  var taskList = document.getElementById("taskList");
+  const tasks = storage.getTasks();
+  const taskList = document.getElementById("taskList");
 
   taskList.innerHTML = "";
-  tasks.forEach(function (taskObj, index) {
+  tasks.forEach((taskObj, index) => {
     // 兼容性，旧版本的没有level
     if (taskObj.level === undefined) {
-      tasks[index].level = 0;
-      // save
-      localStorage.setItem("tasks", JSON.stringify(tasks));
+      taskObj.level = 0;
+      storage.updateTask(index, taskObj);
     }
-    var li = createTaskElement(taskObj, index);
+    const li = createTaskElement(taskObj, index);
     taskList.appendChild(li);
   });
 }
 
 function createTaskElement(task, index) {
+  let attrs = {
+    type: "checkbox",
+  };
+  if (task.completed) attrs['checked'] = true;
   return makeElement({
     tag: "li",
     data: { index },
@@ -28,10 +32,7 @@ function createTaskElement(task, index) {
     children: [
       makeElement({
         tag: "input",
-        attributes: {
-          type: "checkbox",
-          checked: task.completed,
-        },
+        attributes: attrs,
         events: {
           change: function () {
             updateTaskStatus(index, this.checked);
@@ -63,7 +64,7 @@ function createTaskElement(task, index) {
 }
 
 function setupInputListener() {
-  var input = document.getElementById("taskInput");
+  let input = document.getElementById("taskInput");
   input.addEventListener("keypress", function (event) {
     if (event.key === "Enter") {
       addTask();
@@ -72,97 +73,102 @@ function setupInputListener() {
 }
 
 function addTask() {
-  var input = document.getElementById("taskInput");
-  var task = input.value.trim();
+  let input = document.getElementById("taskInput");
+  let task = input.value.trim();
 
   if (task !== "") {
-    var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    tasks.push({ task: task, completed: false });
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    storage.addTask({ task: task, completed: false, level: 0 });
     input.value = "";
     loadTasks();
   }
 }
 
 function removeTask(index) {
-  var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  tasks.splice(index, 1);
-  localStorage.setItem("tasks", JSON.stringify(tasks));
+  storage.removeTask(index);
   loadTasks();
 }
 
 function updateTaskStatus(index, completed) {
-  var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   tasks[index].completed = completed;
-  localStorage.setItem("tasks", JSON.stringify(tasks));
+  storage.updateTask(index, tasks[index]);
 }
 
 function editTask(taskElement) {
   let parent = taskElement.parentElement;
-  var index = parent.dataset.index;
-  var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  var taskInput = makeElement({
+  let index = parent.dataset.index;
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  let taskInput = makeElement({
     tag: "input",
     type: "text",
     attributes: {
       value: tasks[index].task,
     },
     classes: ["task-input"],
-  });
-
-  // Add event listener for Tab and Shift+Tab keys
-  taskInput.addEventListener("keydown", function (event) {
-    let parent = taskInput.parentElement;
-    if (event.key === "Tab" && event.shiftKey) {
-      event.preventDefault();
-      decreaseIndentation(parent);
-    } else if (event.key === "Tab") {
-      event.preventDefault();
-      increaseIndentation(parent);
-    }
+    "events": {
+      keys: {
+        "Tab": [
+          [
+            "shift",
+            function (event) {
+              let parent = taskInput.parentElement;
+              event.preventDefault();
+              decreaseIndentation(parent);
+            }
+          ],
+          function (event) {
+            let parent = taskInput.parentElement;
+            event.preventDefault();
+            increaseIndentation(parent);
+          }
+        ],
+        Enter: function (event) {
+          tasks[index].task = taskInput.value.trim();
+          localStorage.setItem("tasks", JSON.stringify(tasks));
+          // Update the task element with the new text
+          taskElement.textContent = tasks[index].task;
+          parent.replaceChild(taskElement, taskInput);
+          enterPressed = true;
+        },
+        Escape: function (event) {
+          // If Escape key is pressed, cancel editing
+          taskElement.textContent = tasks[index].task;
+          escapePressed = true;
+        },
+      }
+    },
   });
 
   function increaseIndentation(entry) {
-    var currentIndentation = parseInt(entry.style.paddingLeft) || 0;
+    let currentIndentation = parseInt(entry.style.paddingLeft) || 0;
     entry.style.paddingLeft = (currentIndentation + 2) + "em";
     tasks[index].level += 1;
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    storage.updateTask(index, tasks[index]);
   }
 
   function decreaseIndentation(entry) {
-    var currentIndentation = parseInt(entry.style.paddingLeft) || 0;
+    let currentIndentation = parseInt(entry.style.paddingLeft) || 0;
     entry.style.paddingLeft = Math.max(0, currentIndentation - 2) + "em";
     tasks[index].level = Math.max(0, tasks[index].level - 1);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    storage.updateTask(index, tasks[index]);
   }
 
-  var escapePressed = false; // Flag to track if Escape key is pressed
-
-  taskInput.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-      tasks[index].task = taskInput.value.trim();
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-      // Update the task element with the new text
-      taskElement.textContent = tasks[index].task;
-      parent.replaceChild(taskElement, taskInput);
-    } else if (event.key === "Escape") {
-      // If Escape key is pressed, cancel editing
-      taskElement.textContent = tasks[index].task;
-      escapePressed = true;
-    }
-  });
+  let escapePressed = false; // Flag to track if Escape key is pressed
+  let enterPressed = false;
 
   taskInput.addEventListener("blur", function (e) {
     // Blur event should not trigger if Escape key was pressed
-    setTimeout(function () {
-      if (!escapePressed) {
-        tasks[index].task = taskInput.value.trim();
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-        // Update the task element with the new text
-        taskElement.textContent = tasks[index].task;
-        parent.replaceChild(taskElement, taskInput);
-      }
-    }, 0);
+    if (!enterPressed) {
+      setTimeout(function () {
+        if (!escapePressed) {
+          tasks[index].task = taskInput.value.trim();
+          localStorage.setItem("tasks", JSON.stringify(tasks));
+          // Update the task element with the new text
+          taskElement.textContent = tasks[index].task;
+          parent.replaceChild(taskElement, taskInput);
+        }
+      }, 0);
+    }
   });
 
   // replace taskElement with taskInput
