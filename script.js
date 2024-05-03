@@ -31,6 +31,16 @@ function createTaskElement(task, index) {
     styles: { "padding-left": (task.level * 2) + "em" },
     children: [
       makeElement({
+        tag: "button",
+        text: "",
+        classes: ["toggle-button"],
+        events: {
+          click: function () {
+            toggleTasks(index);
+          }
+        }
+      }),
+      makeElement({
         tag: "input",
         attributes: attrs,
         events: {
@@ -61,6 +71,58 @@ function createTaskElement(task, index) {
       })
     ]
   });
+}
+function toggleTasks(index) {
+  const tasks = storage.getTasks();
+  const taskList = document.getElementById("taskList");
+  const listItem = taskList.childNodes[index]; // 获取当前任务的li元素
+
+  if (listItem.classList.contains('collapsed')) {
+    // 展开任务
+    expandTasks(index, taskList, listItem);
+  } else {
+    // 折叠任务
+    collapseTasks(index, taskList, listItem);
+  }
+}
+
+function expandTasks(index, taskList, listItem) {
+  const tasks = storage.getTasks();
+  listItem.classList.remove('collapsed'); // 移除折叠状态的类名
+  const currentLevel = tasks[index].level; // 获取当前任务的级别
+
+  // 遍历当前任务之后的任务
+  for (let i = index + 1; i < tasks.length; i++) {
+    const taskLevel = tasks[i].level; // 获取任务的级别
+
+    // 如果任务的级别小于当前任务的级别，则停止展开
+    if (taskLevel <= currentLevel) {
+      break;
+    }
+
+    // 如果任务的级别大于当前任务的级别，则显示任务
+    if (taskList.childNodes[i].classList.contains('hidden')) {
+      taskList.childNodes[i].classList.remove('hidden');
+    }
+  }
+}
+
+function collapseTasks(index, taskList, listItem) {
+  const tasks = storage.getTasks();
+  listItem.classList.add('collapsed'); // 添加折叠状态的类名
+  const currentLevel = tasks[index].level; // 获取当前任务的级别
+
+  // 遍历当前任务之后的任务
+  for (let i = index + 1; i < tasks.length; i++) {
+    const taskLevel = tasks[i].level; // 获取任务的级别
+
+    // 如果任务的级别小于等于当前任务的级别，则隐藏任务
+    if (taskLevel <= currentLevel) {
+      break;
+    }
+
+    taskList.childNodes[i].classList.add('hidden');
+  }
 }
 
 function setupInputListener() {

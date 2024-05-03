@@ -89,3 +89,15 @@ li.selected {
   border-radius: 5px;
   /* Add rounded corners for selected effect */
 }
+
+.hidden {
+  display: none !important;
+}
+
+.collapsed .toggle-button::after {
+  content: "+";
+}
+
+.toggle-button::after {
+  content: "-";
+}
