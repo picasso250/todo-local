@@ -89,7 +89,7 @@ function removeTask(index) {
 }
 
 function updateTaskStatus(index, completed) {
-  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  let tasks = storage.getTasks();
   tasks[index].completed = completed;
   storage.updateTask(index, tasks[index]);
 }
@@ -97,7 +97,7 @@ function updateTaskStatus(index, completed) {
 function editTask(taskElement) {
   let parent = taskElement.parentElement;
   let index = parent.dataset.index;
-  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  let tasks = storage.getTasks();
   let taskInput = makeElement({
     tag: "input",
     type: "text",
@@ -124,7 +124,7 @@ function editTask(taskElement) {
         ],
         Enter: function (event) {
           tasks[index].task = taskInput.value.trim();
-          localStorage.setItem("tasks", JSON.stringify(tasks));
+          storage.updateTask(index, tasks[index]);
           // Update the task element with the new text
           taskElement.textContent = tasks[index].task;
           parent.replaceChild(taskElement, taskInput);
@@ -162,7 +162,7 @@ function editTask(taskElement) {
       setTimeout(function () {
         if (!escapePressed) {
           tasks[index].task = taskInput.value.trim();
-          localStorage.setItem("tasks", JSON.stringify(tasks));
+          storage.updateTask(index, tasks[index]);
           // Update the task element with the new text
           taskElement.textContent = tasks[index].task;
           parent.replaceChild(taskElement, taskInput);
