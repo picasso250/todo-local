@@ -15,34 +15,44 @@ function loadTasks() {
 }
 
 function createTaskElement(task, completed, index) {
-  var li = document.createElement("li");
-  li.dataset.index = index;
-
-  var checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.checked = completed;
-  checkbox.addEventListener("change", function () {
-    updateTaskStatus(index, this.checked);
+  return makeElement({
+    tag: "li",
+    data: { index },
+    children: [
+      makeElement({
+        tag: "input",
+        attributes:{
+          type: "checkbox",
+          checked: completed,
+        },
+        events: {
+          change: function () {
+            updateTaskStatus(index, this.checked);
+          }
+        }
+      }),
+      makeElement({
+        tag: "span",
+        text: task,
+        classes: ["task-text"],
+        events: {
+          click: function () {
+            editTask(this);
+          }
+        }
+      }),
+      makeElement({
+        tag: "button",
+        html: "&times;",
+        classes: ["remove-button"],
+        events: {
+          click: function () {
+            removeTask(index);
+          }
+        }
+      })
+    ]
   });
-  li.appendChild(checkbox);
-
-  var taskText = document.createElement("span");
-  taskText.textContent = task;
-  taskText.classList.add("task-text");
-  taskText.addEventListener("click", function () {
-    editTask(this);
-  });
-  li.appendChild(taskText);
-
-  var removeButton = document.createElement("button");
-  removeButton.innerHTML = "&times;"; // Red cross symbol
-  removeButton.classList.add("remove-button");
-  removeButton.onclick = function () {
-    removeTask(index);
-  };
-  li.appendChild(removeButton);
-
-  return li;
 }
 
 function setupInputListener() {
@@ -83,10 +93,12 @@ function updateTaskStatus(index, completed) {
 function editTask(taskElement) {
   var index = taskElement.parentElement.dataset.index;
   var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  var taskInput = document.createElement("input");
-  taskInput.type = "text";
-  taskInput.value = tasks[index].task;
-  taskInput.classList.add("task-input");
+  var taskInput = makeElement({
+    tag: "input",
+    type: "text",
+    value: tasks[index].task,
+    classes: ["task-input"],
+  });
 
   var escapePressed = false; // Flag to track if Escape key is pressed
 
