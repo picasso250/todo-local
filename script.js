@@ -73,7 +73,6 @@ function createTaskElement(task, index) {
   });
 }
 function toggleTasks(index) {
-  const tasks = storage.getTasks();
   const taskList = document.getElementById("taskList");
   const listItem = taskList.childNodes[index]; // 获取当前任务的li元素
 
