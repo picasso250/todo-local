@@ -9,21 +9,28 @@ function loadTasks() {
 
   taskList.innerHTML = "";
   tasks.forEach(function (taskObj, index) {
-    var li = createTaskElement(taskObj.task, taskObj.completed, index);
+    // 兼容性，旧版本的没有level
+    if (taskObj.level === undefined) {
+      tasks[index].level = 0;
+      // save
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+    var li = createTaskElement(taskObj, index);
     taskList.appendChild(li);
   });
 }
 
-function createTaskElement(task, completed, index) {
+function createTaskElement(task, index) {
   return makeElement({
     tag: "li",
     data: { index },
+    styles:{"padding-left":(task.level*2)+"em"},
     children: [
       makeElement({
         tag: "input",
         attributes: {
           type: "checkbox",
-          checked: completed,
+          checked: task.completed,
         },
         events: {
           change: function () {
@@ -33,7 +40,7 @@ function createTaskElement(task, completed, index) {
       }),
       makeElement({
         tag: "span",
-        text: task,
+        text: task.task,
         classes: ["task-text"],
         events: {
           click: function () {
@@ -92,7 +99,6 @@ function updateTaskStatus(index, completed) {
 
 function editTask(taskElement) {
   let parent = taskElement.parentElement;
-
   var index = parent.dataset.index;
   var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   var taskInput = makeElement({
@@ -103,6 +109,32 @@ function editTask(taskElement) {
     },
     classes: ["task-input"],
   });
+
+  // Add event listener for Tab and Shift+Tab keys
+  taskInput.addEventListener("keydown", function (event) {
+    let parent = taskInput.parentElement;
+    if (event.key === "Tab") {
+      event.preventDefault();
+      increaseIndentation(parent);
+    } else if (event.key === "Tab" && event.shiftKey) {
+      event.preventDefault();
+      decreaseIndentation(parent);
+    }
+  });
+
+  function increaseIndentation(entry) {
+    var currentIndentation = parseInt(entry.style.paddingLeft) || 0;
+    entry.style.paddingLeft = (currentIndentation + 2) + "em";
+    tasks[index].level += 1;
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }
+
+  function decreaseIndentation(entry) {
+    var currentIndentation = parseInt(entry.style.paddingLeft) || 0;
+    entry.style.paddingLeft = Math.max(0, currentIndentation - 2) + "em";
+    tasks[index].level = Math.max(0, tasks[index].task.level - 1);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }
 
   var escapePressed = false; // Flag to track if Escape key is pressed
 
