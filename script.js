@@ -24,7 +24,7 @@ function createTaskElement(task, index) {
   return makeElement({
     tag: "li",
     data: { index },
-    styles:{"padding-left":(task.level*2)+"em"},
+    styles: { "padding-left": (task.level * 2) + "em" },
     children: [
       makeElement({
         tag: "input",
@@ -113,12 +113,12 @@ function editTask(taskElement) {
   // Add event listener for Tab and Shift+Tab keys
   taskInput.addEventListener("keydown", function (event) {
     let parent = taskInput.parentElement;
-    if (event.key === "Tab") {
-      event.preventDefault();
-      increaseIndentation(parent);
-    } else if (event.key === "Tab" && event.shiftKey) {
+    if (event.key === "Tab" && event.shiftKey) {
       event.preventDefault();
       decreaseIndentation(parent);
+    } else if (event.key === "Tab") {
+      event.preventDefault();
+      increaseIndentation(parent);
     }
   });
 
@@ -132,7 +132,7 @@ function editTask(taskElement) {
   function decreaseIndentation(entry) {
     var currentIndentation = parseInt(entry.style.paddingLeft) || 0;
     entry.style.paddingLeft = Math.max(0, currentIndentation - 2) + "em";
-    tasks[index].level = Math.max(0, tasks[index].task.level - 1);
+    tasks[index].level = Math.max(0, tasks[index].level - 1);
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }
 
@@ -142,7 +142,9 @@ function editTask(taskElement) {
     if (event.key === "Enter") {
       tasks[index].task = taskInput.value.trim();
       localStorage.setItem("tasks", JSON.stringify(tasks));
-      loadTasks();
+      // Update the task element with the new text
+      taskElement.textContent = tasks[index].task;
+      parent.replaceChild(taskElement, taskInput);
     } else if (event.key === "Escape") {
       // If Escape key is pressed, cancel editing
       taskElement.textContent = tasks[index].task;
@@ -156,7 +158,9 @@ function editTask(taskElement) {
       if (!escapePressed) {
         tasks[index].task = taskInput.value.trim();
         localStorage.setItem("tasks", JSON.stringify(tasks));
-        loadTasks();
+        // Update the task element with the new text
+        taskElement.textContent = tasks[index].task;
+        parent.replaceChild(taskElement, taskInput);
       }
     }, 0);
   });
