@@ -21,7 +21,7 @@ function createTaskElement(task, completed, index) {
     children: [
       makeElement({
         tag: "input",
-        attributes:{
+        attributes: {
           type: "checkbox",
           checked: completed,
         },
@@ -91,12 +91,16 @@ function updateTaskStatus(index, completed) {
 }
 
 function editTask(taskElement) {
-  var index = taskElement.parentElement.dataset.index;
+  let parent = taskElement.parentElement;
+
+  var index = parent.dataset.index;
   var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   var taskInput = makeElement({
     tag: "input",
     type: "text",
-    value: tasks[index].task,
+    attributes: {
+      value: tasks[index].task,
+    },
     classes: ["task-input"],
   });
 
@@ -114,7 +118,7 @@ function editTask(taskElement) {
     }
   });
 
-  taskInput.addEventListener("blur", function () {
+  taskInput.addEventListener("blur", function (e) {
     // Blur event should not trigger if Escape key was pressed
     setTimeout(function () {
       if (!escapePressed) {
@@ -125,7 +129,8 @@ function editTask(taskElement) {
     }, 0);
   });
 
-  taskElement.textContent = "";
-  taskElement.appendChild(taskInput);
+  // replace taskElement with taskInput
+  parent.replaceChild(taskInput, taskElement);
+
   taskInput.focus();
 }
